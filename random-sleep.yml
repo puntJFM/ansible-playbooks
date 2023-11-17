@@ -1,0 +1,11 @@
+---
+- name: Random Sleep Example
+  hosts: localhost
+  gather_facts: no
+  tasks:
+    - name: Generate Random Number
+      set_fact:
+        random_sleep: "{{ (20 + (range(1, 11) | random)) }}"
+    
+    - name: Sleep for Random Duration
+      command: /bin/sleep {{ random_sleep }}
