@@ -1,1 +1,7 @@
-
+---
+- name: 60 Seconds Sleep Example
+  hosts: localhost
+  gather_facts: no
+  tasks:   
+    - name: Sleep for 1 minute
+      command: /bin/sleep 60
