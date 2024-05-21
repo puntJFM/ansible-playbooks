@@ -1,0 +1,70 @@
+---
+- name: Simulate playbook to deploy Nginx and send callback
+  hosts: localhost
+  gather_facts: no
+  vars:
+    callbackUrl: "{{ callbackUrl | default('https://default.callback.url') }}"
+    callbackToken: "{{ callbackToken | default('defaultToken') }}"
+    delete_inventory: "{{ delete_inventory | default('False') }}"
+    dry_run: "{{ dry_run | default('False') }}"
+    execution_job_tags: "{{ execution_job_tags | default('') }}"
+    execution_limit: "{{ execution_limit | default('') }}"
+    execution_skip_tags: "{{ execution_skip_tags | default('') }}"
+    extra_vars: "{{ extra_vars | default('') }}"
+    host_group: "{{ host_group | default('') }}"
+    job_template_or_workflow: "{{ job_template_or_workflow | default('') }}"
+    server_list: "{{ server_list | default('localhost') }}"
+    server_list_separator: "{{ server_list_separator | default(',') }}"
+    use_template_inventory: "{{ use_template_inventory | default('False') }}"
+    cutoverTransformKey: "{{ cutoverTransformKey | default('') }}"
+    callback_data: "Callback successfully executed"
+
+  tasks:
+    - name: Print input variables
+      debug:
+        var: item
+      with_items:
+        - callbackUrl
+        - callbackToken
+        - delete_inventory
+        - dry_run
+        - execution_job_tags
+        - execution_limit
+        - execution_skip_tags
+        - extra_vars
+        - host_group
+        - job_template_or_workflow
+        - server_list
+        - server_list_separator
+        - use_template_inventory
+        - cutoverTransformKey
+
+    - name: Simulate Nginx installation result on CentOS/RedHat
+      set_fact:
+        nginx_result:
+          changed: true
+          msg: "Nginx installed successfully"
+          rc: 0
+          stdout: "Loaded plugins: fastestmirror\nLoading mirror speeds from cached hostfile\n * base: mirrors.aliyun.com\n * extras: mirrors.aliyun.com\n * updates: mirrors.aliyun.com\nResolving Dependencies\n--> Running transaction check\n---> Package nginx.x86_64 1:1.14.1-9.el7 will be installed\n--> Finished Dependency Resolution\n\nDependencies Resolved\n\n================================================================================\n Package         Arch             Version                   Repository      Size\n================================================================================\nInstalling:\n nginx           x86_64           1:1.14.1-9.el7            base           552 k\n\nTransaction Summary\n================================================================================\nInstall  1 Package\n\nTotal download size: 552 k\nInstalled size: 2.0 M\nDownloading packages:\nRunning transaction check\nRunning transaction test\nTransaction test succeeded\nRunning transaction\n  Installing : 1:nginx-1.14.1-9.el7.x86_64                                    1/1 \n  Verifying  : 1:nginx-1.14.1-9.el7.x86_64                                    1/1 \n\nInstalled:\n  nginx.x86_64 1:1.14.1-9.el7                                                   \n\nComplete!\n"
+
+    - name: Prepare callback data
+      set_fact:
+        callback_data: "{{ nginx_result }}"
+
+    - name: Callback to URL
+      uri:
+        url: "{{ callbackUrl }}"
+        method: POST
+        body_format: json
+        body:
+          message: "Nginx deployment result"
+          result: "{{ callback_data }}"
+        headers:
+          Content-Type: "application/json"
+          Authorization: "Bearer {{ callbackToken }}"
+      register: callback_response
+      no_log: true
+
+    - name: Print callback response
+      debug:
+        var: callback_response
