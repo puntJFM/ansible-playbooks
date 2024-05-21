@@ -3,19 +3,19 @@
   hosts: localhost
   gather_facts: no
   vars:
-    callbackUrl: "{{ callbackUrl }}"
-    delete_inventory: "{{ delete_inventory }}"
-    dry_run: "{{ dry_run }}"
-    execution_job_tags: "{{ execution_job_tags }}"
-    execution_limit: "{{ execution_limit }}"
-    execution_skip_tags: "{{ execution_skip_tags }}"
-    extra_vars: "{{ extra_vars }}"
-    host_group: "{{ host_group }}"
-    job_template_or_workflow: "{{ job_template_or_workflow }}"
-    server_list: "{{ server_list }}"
-    server_list_separator: "{{ server_list_separator }}"
-    use_template_inventory: "{{ use_template_inventory }}"
-    cutoverTransformKey: "{{ cutoverTransformKey }}"
+    callbackUrl: "{{ callbackUrl | default('https://default.callback.url') }}"
+    delete_inventory: "{{ delete_inventory | default('False') }}"
+    dry_run: "{{ dry_run | default('False') }}"
+    execution_job_tags: "{{ execution_job_tags | default('') }}"
+    execution_limit: "{{ execution_limit | default('') }}"
+    execution_skip_tags: "{{ execution_skip_tags | default('') }}"
+    extra_vars: "{{ extra_vars | default('') }}"
+    host_group: "{{ host_group | default('') }}"
+    job_template_or_workflow: "{{ job_template_or_workflow | default('') }}"
+    server_list: "{{ server_list | default('localhost') }}"
+    server_list_separator: "{{ server_list_separator | default(',') }}"
+    use_template_inventory: "{{ use_template_inventory | default('False') }}"
+    cutoverTransformKey: "{{ cutoverTransformKey | default('') }}"
 
   tasks:
     - name: Print callbackUrl
@@ -69,4 +69,3 @@
     - name: Print cutoverTransformKey
       debug:
         msg: "cutoverTransformKey: {{ cutoverTransformKey }}"
-
