@@ -69,3 +69,18 @@
     - name: Print cutoverTransformKey
       debug:
         msg: "cutoverTransformKey: {{ cutoverTransformKey }}"
+
+    - name: Callback to URL
+      uri:
+        url: "{{ callbackUrl }}"
+        method: POST
+        body_format: json
+        body:
+          message: "{{ callback_data }}"
+        headers:
+          Content-Type: "application/json"
+      register: callback_response
+
+    - name: Print callback response
+      debug:
+        var: callback_response
