@@ -4,6 +4,7 @@
   gather_facts: no
   vars:
     callbackUrl: "{{ callbackUrl | default('https://default.callback.url') }}"
+    callbackToken: "{{ callbackToken | default('defaultToken') }}"
     delete_inventory: "{{ delete_inventory | default('False') }}"
     dry_run: "{{ dry_run | default('False') }}"
     execution_job_tags: "{{ execution_job_tags | default('') }}"
@@ -79,7 +80,9 @@
           message: "{{ callback_data }}"
         headers:
           Content-Type: "application/json"
+          Authorization: "Bearer {{ callbackToken }}"
       register: callback_response
+      no_log: true
 
     - name: Print callback response
       debug:
