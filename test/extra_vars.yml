@@ -1,1 +1,72 @@
+---
+- name: Example playbook to process and print extra variables
+  hosts: localhost
+  gather_facts: no
+  vars:
+    callbackUrl: "{{ callbackUrl }}"
+    delete_inventory: "{{ delete_inventory }}"
+    dry_run: "{{ dry_run }}"
+    execution_job_tags: "{{ execution_job_tags }}"
+    execution_limit: "{{ execution_limit }}"
+    execution_skip_tags: "{{ execution_skip_tags }}"
+    extra_vars: "{{ extra_vars }}"
+    host_group: "{{ host_group }}"
+    job_template_or_workflow: "{{ job_template_or_workflow }}"
+    server_list: "{{ server_list }}"
+    server_list_separator: "{{ server_list_separator }}"
+    use_template_inventory: "{{ use_template_inventory }}"
+    cutoverTransformKey: "{{ cutoverTransformKey }}"
+
+  tasks:
+    - name: Print callbackUrl
+      debug:
+        msg: "callbackUrl: {{ callbackUrl }}"
+
+    - name: Print delete_inventory
+      debug:
+        msg: "delete_inventory: {{ delete_inventory }}"
+
+    - name: Print dry_run
+      debug:
+        msg: "dry_run: {{ dry_run }}"
+
+    - name: Print execution_job_tags
+      debug:
+        msg: "execution_job_tags: {{ execution_job_tags }}"
+
+    - name: Print execution_limit
+      debug:
+        msg: "execution_limit: {{ execution_limit }}"
+
+    - name: Print execution_skip_tags
+      debug:
+        msg: "execution_skip_tags: {{ execution_skip_tags }}"
+
+    - name: Print extra_vars
+      debug:
+        msg: "extra_vars: {{ extra_vars }}"
+
+    - name: Print host_group
+      debug:
+        msg: "host_group: {{ host_group }}"
+
+    - name: Print job_template_or_workflow
+      debug:
+        msg: "job_template_or_workflow: {{ job_template_or_workflow }}"
+
+    - name: Print server_list
+      debug:
+        msg: "server_list: {{ server_list }}"
+
+    - name: Print server_list_separator
+      debug:
+        msg: "server_list_separator: {{ server_list_separator }}"
+
+    - name: Print use_template_inventory
+      debug:
+        msg: "use_template_inventory: {{ use_template_inventory }}"
+
+    - name: Print cutoverTransformKey
+      debug:
+        msg: "cutoverTransformKey: {{ cutoverTransformKey }}"
 
