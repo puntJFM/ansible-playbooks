@@ -63,7 +63,7 @@
           Content-Type: "application/json"
           Authorization: "Bearer {{ callbackToken }}"
       register: callback_response
-      no_log: true
+      no_log: false
 
     - name: Print callback response
       debug:
