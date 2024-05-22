@@ -17,6 +17,7 @@
     server_list_separator: "{{ server_list_separator | default(',') }}"
     use_template_inventory: "{{ use_template_inventory | default('False') }}"
     cutoverTransformKey: "{{ cutoverTransformKey | default('') }}"
+    token: "{{ cutoverTransformKey | default('NoToken') }}"
     callback_data: "Callback successfully executed"
 
   tasks:
@@ -54,7 +55,7 @@
     - name: Callback to URL
       uri:
         url: "{{ callbackUrl }}"
-        method: POST
+        method: PATCH
         body_format: json
         body:
           message: "Nginx deployment result"
