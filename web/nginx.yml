@@ -24,10 +24,6 @@
       debug:
         msg: "callbackUrl: {{ callbackUrl }}"
 
-    - name: Print callbackToken
-      debug:
-        msg: "callbackToken: {{ callbackToken }}"
-
     - name: Print delete_inventory
       debug:
         msg: "delete_inventory: {{ delete_inventory }}"
