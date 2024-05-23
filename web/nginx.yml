@@ -86,21 +86,25 @@
 
     - name: Prepare callback data
       set_fact:
-        callback_data: "{{ nginx_result }}"
+        callback_data: "Manual step executed successfully. Nginx installation result: {{ nginx_result }}"
 
     - name: Callback to URL
       uri:
         url: "{{ callbackUrl }}"
         method: PATCH
         body_format: json
-        body:
-          message: "Nginx deployment result"
-          result: "{{ callback_data }}"
+        body: 
+          data: 
+            type: "task"
+            attributes: 
+              custom_field_values: 
+                - name: "AWX Status"
+                  value: "{{ callback_data }}"
         headers:
+          Accept: "application/json"
           Content-Type: "application/json"
-          Authorization: "Bearer {{ token }}"
+          Authorization: "Bearer {{ callbackToken }}"
       register: callback_response
-      no_log: false
 
     - name: Print callback response
       debug:
