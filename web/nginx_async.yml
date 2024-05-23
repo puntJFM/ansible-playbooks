@@ -1,0 +1,93 @@
+---
+- name: Deploy Nginx asynchronously and send updates
+  hosts: localhost
+  gather_facts: no
+  vars:
+    callbackUrl: "{{ callbackUrl | default('https://default.callback.url') }}"
+    callbackToken: "{{ callbackToken | default('defaultToken') }}"
+
+  tasks:
+    - name: Install Nginx asynchronously
+      ansible.builtin.yum:
+        name: nginx
+        state: present
+      async: 120
+      poll: 0
+      register: yum_job
+
+    - name: Send initial callback
+      uri:
+        url: "{{ callbackUrl }}"
+        method: POST
+        body_format: json
+        body:
+          data:
+            type: "task"
+            attributes:
+              custom_field_values:
+                - name: "AWX Status"
+                  value: "Nginx installation started asynchronously."
+        headers:
+          Content-Type: "application/json"
+          Authorization: "Bearer {{ callbackToken }}"
+
+    - name: Check Nginx installation status
+      ansible.builtin.async_status:
+        jid: "{{ yum_job.ansible_job_id }}"
+      register: job_result
+      until: job_result.finished
+      retries: 10
+      delay: 12
+
+    - name: Start Nginx service
+      ansible.builtin.service:
+        name: nginx
+        state: started
+        enabled: yes
+      register: start_result
+
+    - name: Send callback after starting Nginx
+      uri:
+        url: "{{ callbackUrl }}"
+        method: POST
+        body_format: json
+        body:
+          data:
+            type: "task"
+            attributes:
+              custom_field_values:
+                - name: "AWX Status"
+                  value: "Nginx service started."
+        headers:
+          Content-Type: "application/json"
+          Authorization: "Bearer {{ callbackToken }}"
+
+    - name: Wait for Nginx to be up
+      uri:
+        url: "http://localhost"
+        status_code: 200
+      register: nginx_up
+      retries: 10
+      delay: 12
+      until: nginx_up.status == 200
+
+    - name: Send completion callback
+      uri:
+        url: "{{ callbackUrl }}"
+        method: POST
+        body_format: json
+        body:
+          data:
+            type: "task"
+            attributes:
+              custom_field_values:
+                - name: "AWX Status"
+                  value: "Nginx is up and running. Installation result: {{ job_result }}"
+        headers:
+          Content-Type: "application/json"
+          Authorization: "Bearer {{ callbackToken }}"
+      register: callback_response
+
+    - name: Print callback response
+      debug:
+        var: callback_response
