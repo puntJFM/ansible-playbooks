@@ -72,9 +72,10 @@
       debug:
         msg: "cutoverTransformKey: {{ cutoverTransformKey }}"
 
-    - name: Print token
-      debug:
-        msg: "token: {{ token }}"
+    # Only print out when absolutley neccessary
+    # - name: Print token
+    #   debug:
+    #     msg: "token: {{ token }}"
 
     - name: Simulate Nginx installation result on CentOS/RedHat
       set_fact:
@@ -86,7 +87,7 @@
 
     - name: Prepare callback data
       set_fact:
-        callback_data: "Manual step executed successfully. Nginx installation result: {{ nginx_result }}"
+        callback_data: "Step executed successfully.\n\nNginx installation result: {{ nginx_result }}"
 
     - name: Callback to URL
       uri:
@@ -98,7 +99,7 @@
             type: "task"
             attributes: 
               custom_field_values: 
-                - name: "AWX Status"
+                - name: "Response"
                   value: "{{ callback_data }}"
         headers:
           Accept: "application/json"
