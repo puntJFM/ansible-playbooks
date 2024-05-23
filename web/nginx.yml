@@ -103,7 +103,7 @@
         headers:
           Accept: "application/json"
           Content-Type: "application/json"
-          Authorization: "Bearer {{ callbackToken }}"
+          Authorization: "Bearer {{ token }}"
       register: callback_response
 
     - name: Print callback response
