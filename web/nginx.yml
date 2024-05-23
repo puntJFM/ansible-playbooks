@@ -98,7 +98,7 @@
           result: "{{ callback_data }}"
         headers:
           Content-Type: "application/json"
-          Authorization: "Bearer {{ callbackToken }}"
+          Authorization: "Bearer {{ token }}"
       register: callback_response
       no_log: false
 
