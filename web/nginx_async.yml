@@ -1,5 +1,5 @@
 ---
-- name: Deploy Nginx asynchronously and send updates
+- name: Simulate Nginx deployment with periodic callbacks
   hosts: localhost
   gather_facts: no
   vars:
@@ -7,11 +7,9 @@
     callbackToken: "{{ callbackToken | default('defaultToken') }}"
 
   tasks:
-    - name: Install Nginx asynchronously
-      ansible.builtin.yum:
-        name: nginx
-        state: present
-      async: 120
+    - name: Simulate Nginx installation start
+      command: "sleep 5"
+      async: 0
       poll: 0
       register: yum_job
 
@@ -25,28 +23,16 @@
             type: "task"
             attributes:
               custom_field_values:
-                - name: "AWX Status"
+                - name: "Response"
                   value: "Nginx installation started asynchronously."
         headers:
           Content-Type: "application/json"
           Authorization: "Bearer {{ callbackToken }}"
 
-    - name: Check Nginx installation status
-      ansible.builtin.async_status:
-        jid: "{{ yum_job.ansible_job_id }}"
-      register: job_result
-      until: job_result.finished
-      retries: 10
-      delay: 12
+    - name: Wait for initial period
+      command: "sleep 15"
 
-    - name: Start Nginx service
-      ansible.builtin.service:
-        name: nginx
-        state: started
-        enabled: yes
-      register: start_result
-
-    - name: Send callback after starting Nginx
+    - name: Send in-progress callback
       uri:
         url: "{{ callbackUrl }}"
         method: POST
@@ -56,20 +42,26 @@
             type: "task"
             attributes:
               custom_field_values:
-                - name: "AWX Status"
-                  value: "Nginx service started."
+                - name: "Response"
+                  value: "Nginx installation in progress."
         headers:
           Content-Type: "application/json"
           Authorization: "Bearer {{ callbackToken }}"
 
-    - name: Wait for Nginx to be up
-      uri:
-        url: "http://localhost"
-        status_code: 200
-      register: nginx_up
-      retries: 10
-      delay: 12
-      until: nginx_up.status == 200
+    - name: Wait for completion
+      command: "sleep 15"
+
+    - name: Simulate Nginx installation completion
+      set_fact:
+        nginx_result:
+          changed: true
+          msg: "Nginx installed successfully"
+          rc: 0
+          stdout: "Simulated Nginx installation output."
+
+    - name: Prepare callback data
+      set_fact:
+        callback_data: "Nginx installation - executed successfully. Nginx installation result: {{ nginx_result }}"
 
     - name: Send completion callback
       uri:
@@ -81,8 +73,8 @@
             type: "task"
             attributes:
               custom_field_values:
-                - name: "AWX Status"
-                  value: "Nginx is up and running. Installation result: {{ job_result }}"
+                - name: "Response"
+                  value: "{{ callback_data }}"
         headers:
           Content-Type: "application/json"
           Authorization: "Bearer {{ callbackToken }}"
