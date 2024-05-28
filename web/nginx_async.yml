@@ -16,7 +16,7 @@
     server_list_separator: "{{ server_list_separator | default(',') }}"
     use_template_inventory: "{{ use_template_inventory | default('False') }}"
     cutoverTransformKey: "{{ cutoverTransformKey | default('') }}"
-    callbackToken: "{{ callbackToken | default('NoToken') }}"
+    token: "{{ token | default('NoToken') }}"
     callback_data: "Callback successfully executed"
 
   tasks:
@@ -40,7 +40,7 @@
                   value: "Nginx installation started asynchronously."
         headers:
           Content-Type: "application/json"
-          Authorization: "Bearer {{ callbackToken }}"
+          Authorization: "Bearer {{ token }}"
 
     - name: Wait for initial period
       command: "sleep 15"
@@ -59,7 +59,7 @@
                   value: "Nginx installation in progress."
         headers:
           Content-Type: "application/json"
-          Authorization: "Bearer {{ callbackToken }}"
+          Authorization: "Bearer {{ token }}"
 
     - name: Wait for completion
       command: "sleep 15"
@@ -90,7 +90,7 @@
                   value: "{{ callback_data }}"
         headers:
           Content-Type: "application/json"
-          Authorization: "Bearer {{ callbackToken }}"
+          Authorization: "Bearer {{ token }}"
       register: callback_response
 
     - name: Print callback response
