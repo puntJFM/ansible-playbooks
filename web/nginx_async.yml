@@ -33,7 +33,7 @@
     - name: Send initial callback
       uri:
         url: "{{ callbackUrl }}"
-        method: POST
+        method: PATCH
         body_format: json
         body:
           data:
@@ -52,7 +52,7 @@
     - name: Send in-progress callback
       uri:
         url: "{{ callbackUrl }}"
-        method: POST
+        method: PATCH
         body_format: json
         body:
           data:
@@ -83,7 +83,7 @@
     - name: Send completion callback
       uri:
         url: "{{ callbackUrl }}"
-        method: POST
+        method: PATCH
         body_format: json
         body:
           data:
