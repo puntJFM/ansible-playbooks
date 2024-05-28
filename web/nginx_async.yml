@@ -26,6 +26,10 @@
       poll: 0
       register: yum_job
 
+    - name: Print callbackUrl
+      debug:
+        msg: "callbackUrl: {{ callbackUrl }}"
+
     - name: Send initial callback
       uri:
         url: "{{ callbackUrl }}"
