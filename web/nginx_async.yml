@@ -4,7 +4,20 @@
   gather_facts: no
   vars:
     callbackUrl: "{{ callbackUrl | default('https://default.callback.url') }}"
-    callbackToken: "{{ callbackToken | default('defaultToken') }}"
+    delete_inventory: "{{ delete_inventory | default('False') }}"
+    dry_run: "{{ dry_run | default('False') }}"
+    execution_job_tags: "{{ execution_job_tags | default('') }}"
+    execution_limit: "{{ execution_limit | default('') }}"
+    execution_skip_tags: "{{ execution_skip_tags | default('') }}"
+    extra_vars: "{{ extra_vars | default('') }}"
+    host_group: "{{ host_group | default('') }}"
+    job_template_or_workflow: "{{ job_template_or_workflow | default('') }}"
+    server_list: "{{ server_list | default('localhost') }}"
+    server_list_separator: "{{ server_list_separator | default(',') }}"
+    use_template_inventory: "{{ use_template_inventory | default('False') }}"
+    cutoverTransformKey: "{{ cutoverTransformKey | default('') }}"
+    token: "{{ cutoverTransformKey | default('NoToken') }}"
+    callback_data: "Callback successfully executed"
 
   tasks:
     - name: Simulate Nginx installation start
