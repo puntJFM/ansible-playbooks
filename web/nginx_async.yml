@@ -16,7 +16,7 @@
     server_list_separator: "{{ server_list_separator | default(',') }}"
     use_template_inventory: "{{ use_template_inventory | default('False') }}"
     cutoverTransformKey: "{{ cutoverTransformKey | default('') }}"
-    token: "{{ cutoverTransformKey | default('NoToken') }}"
+    callbackToken: "{{ callbackToken | default('NoToken') }}"
     callback_data: "Callback successfully executed"
 
   tasks:
