@@ -82,7 +82,7 @@
 
     - name: Send completion callback
       uri:
-        url: "{{ callbackUrl }}"
+        url: "{{ callbackUrl }}/finish"
         method: PATCH
         body_format: json
         body:
