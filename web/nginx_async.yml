@@ -18,8 +18,12 @@
     cutoverTransformKey: "{{ cutoverTransformKey | default('') }}"
     token: "{{ token | default('NoToken') }}"
     callback_data: "Callback successfully executed"
-
+    
   tasks:
+    - name: Print input variables
+      debug:
+        msg: "callbackUrl: {{ callbackUrl }}"
+
     - name: Simulate Nginx installation start
       command: "sleep 5"
       async: 0
