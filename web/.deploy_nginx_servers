@@ -1,0 +1,105 @@
+---
+- name: Deploy Nginx Servers
+  hosts: localhost
+  vars:
+    desired_server_count: "{{ desired_server_count | default(5) }}"
+    server_prefix: "{{ server_prefix | default('nginx-server-') }}"
+    instance_type: "{{ instance_type | default('t2.micro') }}"
+    aws_region: "{{ aws_region | default('us-east-1') }}"
+    ami_id: "{{ ami_id | default('ami-12345678') }}"
+    environment: "{{ environment | default('development') }}"
+    nginx_version: "{{ nginx_version | default('latest') }}"
+    callback_url: "{{ callback_url | default('') }}"
+
+  tasks:
+    - name: Get list of existing servers
+      aws_ec2_instance_info:
+        filters:
+          "tag:Name": "{{ server_prefix }}*"
+          instance-state-name: "running"
+      register: existing_servers
+
+    - name: Send callback - Existing servers retrieved
+      uri:
+        url: "{{ callback_url }}"
+        method: POST
+        body_format: json
+        body:
+          status: "in_progress"
+          step: "existing_servers_retrieved"
+          server_count: "{{ existing_servers.instances | length }}"
+      when: callback_url != ''
+
+    - name: Calculate number of servers to launch
+      set_fact:
+        servers_to_launch: "{{ desired_server_count - existing_servers.instances | length }}"
+
+    - name: Send callback - Servers to launch calculated
+      uri:
+        url: "{{ callback_url }}"
+        method: POST
+        body_format: json
+        body:
+          status: "in_progress"
+          step: "servers_to_launch_calculated"
+          servers_to_launch: "{{ servers_to_launch }}"
+      when: callback_url != ''
+
+    - name: Launch new EC2 instances if needed
+      ec2:
+        instance_type: t2.micro
+        image: ami-12345678  # Replace with actual AMI ID
+        region: us-east-1
+        count: "{{ servers_to_launch }}"
+        wait: yes
+        group: webserver
+        instance_tags:
+          Name: "{{ server_prefix }}{{ '%02d' | format(existing_servers.instances | length + item) }}"
+      loop: "{{ range(1, servers_to_launch + 1) | list }}"
+      when: servers_to_launch > 0
+
+    - name: Send callback - New instances launched
+      uri:
+        url: "{{ callback_url }}"
+        method: POST
+        body_format: json
+        body:
+          status: "in_progress"
+          step: "new_instances_launched"
+          new_instance_count: "{{ new_instances.results | length }}"
+      when: callback_url != '' and servers_to_launch > 0
+
+    - name: Install Nginx on all servers
+      ansible.builtin.apt:
+        name: nginx
+        state: present
+      delegate_to: "{{ item.public_ip_address }}"
+      loop: "{{ existing_servers.instances + (ansible_play_hosts | default([]))  }}"
+
+    - name: Send callback - Nginx installed
+      uri:
+        url: "{{ callback_url }}"
+        method: POST
+        body_format: json
+        body:
+          status: "in_progress"
+          step: "nginx_installed"
+      when: callback_url != ''
+
+    - name: Ensure Nginx is running
+      ansible.builtin.service:
+        name: nginx
+        state: started
+      delegate_to: "{{ item.public_ip_address }}"
+      loop: "{{ existing_servers.instances + (ansible_play_hosts | default([]))  }}"
+
+    - name: Send callback - Deployment complete
+      uri:
+        url: "{{ callback_url }}"
+        method: POST
+        body_format: json
+        body:
+          status: "complete"
+          step: "deployment_complete"
+          total_servers: "{{ desired_server_count }}"
+      when: callback_url != ''
