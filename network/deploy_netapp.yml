@@ -1,0 +1,27 @@
+---
+- name: Perform NetApp DR Operations
+  hosts: localhost
+  gather_facts: no
+  vars_files:
+    - ../vars/volumes.yml
+
+# add the file above to your AWX Inventories
+
+  tasks:
+    - name: Perform action on volumes
+      debug:
+        msg: >
+          Volume: {{ item.source_path }} to {{ item.destination_path }}
+      loop: "{{ volumes }}"
+
+    - name: Replicate volume
+      netapp.ontap.na_ontap_snapmirror:
+        state: present
+        source_path: "{{ item.source_path }}"
+        destination_path: "{{ item.destination_path }}"
+        source_hostname: "{{ item.src_host }}"
+        destination_hostname: "{{ item.dest_host }}"
+        username: "admin"
+        password: "password"
+        https: true
+      loop: "{{ volumes }}"
