@@ -5,6 +5,10 @@
     callbackUrl: "{{ callbackUrl | default('https://default.callback.url') }}"
     token: "{{ token | default('NoToken') }}"
   tasks:
+    - name: Print all variables
+      debug:
+        var: vars
+  tasks:
     - name: Send in-progress callback
       uri:
         url: "{{ callbackUrl }}"
