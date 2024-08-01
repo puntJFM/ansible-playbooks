@@ -1,0 +1,16 @@
+---
+- name: Debug callbackUrl variable
+  hosts: localhost
+  gather_facts: no
+  vars:
+    callbackUrl: "{{ callbackUrl | default('https://default.callback.url') }}"
+    token: "{{ token | default('NoToken') }}"
+
+  tasks:
+    - name: Print all variables
+      debug:
+        var: vars
+
+    - name: Print input variables
+      debug:
+        msg: "callbackUrl: {{ callbackUrl }}"
