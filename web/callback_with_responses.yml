@@ -20,6 +20,10 @@
     callback_data: "Callback successfully executed"
     
   tasks:
+    - name: Print all variables
+      debug:
+        var: vars
+
     - name: Print input variables
       debug:
         msg: "callbackUrl: {{ callbackUrl }}"
