@@ -15,7 +15,8 @@
       debug:
         msg: "extra_vars: {{ extra_vars }}"
 
-    - name: Get sample volume data
+    - name: Set sample volume data
+      set_fact:
         volume_info:
           ontap_info:
             volumes:
@@ -40,7 +41,7 @@
                 creation_time: "2024-01-15T12:34:56Z"
                 mirror_status: "idle"
                 last_snapmirror_update: "2024-01-15T12:00:00Z"
-          
 
-
-
+    - name: Print volume status
+      debug:
+        msg: "Volume {{ volume_info.ontap_info.volumes[0].name }} status: {{ volume_info.ontap_info.volumes[0].state }}"
