@@ -1,24 +1,46 @@
-volume_info:
-  ontap_info:
-    volumes:
-      - name: "my_volume"
-        uuid: "4a0e2c48-03e6-11eb-adc1-0242ac120002"
-        state: "online"
-        aggregate: "aggr1"
-        size: "100GB"
-        used: "30GB"
-        available: "70GB"
-        junction_path: "/vol/my_volume"
-        svm: "svm1"
-        type: "rw"
-        style: "flex"
-        snapshot_policy: "default"
-        encryption: "false"
-        space_guarantee: "none"
-        qos_policy_group: "default"
-        efficiency_enabled: "true"
-        deduplication: "true"
-        compression: "true"
-        creation_time: "2024-01-15T12:34:56Z"
-        mirror_status: "idle"
-        last_snapmirror_update: "2024-01-15T12:00:00Z"
+---
+- name: Simulate net app volume status check
+  hosts: localhost
+  gather_facts: no
+  vars:
+    ansible_domain: "{{ ansible_domain | default('False') }}"
+    extra_vars: "{{ extra_vars | default('') }}"
+
+  tasks:
+    - name: Print ansible_domain
+      debug:
+        msg: "ansible_domain: {{ ansible_domain }}"
+
+    - name: Print extra_vars
+      debug:
+        msg: "extra_vars: {{ extra_vars }}"
+
+    - name: Get sample volume data
+        volume_info:
+          ontap_info:
+            volumes:
+              - name: "my_volume"
+                uuid: "4a0e2c48-03e6-11eb-adc1-0242ac120002"
+                state: "online"
+                aggregate: "aggr1"
+                size: "100GB"
+                used: "30GB"
+                available: "70GB"
+                junction_path: "/vol/my_volume"
+                svm: "svm1"
+                type: "rw"
+                style: "flex"
+                snapshot_policy: "default"
+                encryption: "false"
+                space_guarantee: "none"
+                qos_policy_group: "default"
+                efficiency_enabled: "true"
+                deduplication: "true"
+                compression: "true"
+                creation_time: "2024-01-15T12:34:56Z"
+                mirror_status: "idle"
+                last_snapmirror_update: "2024-01-15T12:00:00Z"
+          
+
+
+
