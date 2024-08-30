@@ -44,3 +44,8 @@
     - name: Print volume status
       debug:
         msg: "Volume {{ volume_info.ontap_info.volumes[0].name }} status: {{ volume_info.ontap_info.volumes[0].state }}"
+
+    - name: Set custom status for API response
+      set_stats:
+        data:
+          netapp_volume_status: "Volume {{ volume_info.ontap_info.volumes[0].name }} is {{ volume_info.ontap_info.volumes[0].state }}"
