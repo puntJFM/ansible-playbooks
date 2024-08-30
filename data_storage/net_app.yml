@@ -1,1 +1,65 @@
+---
+- name: Simulate net app volume status and send callback
+  hosts: localhost
+  gather_facts: no
+  vars:
+    callbackUrl: "{{ callbackUrl | default('https://default.callback.url') }}"
+    ansible_domain: "{{ ansible_domain | default('False') }}"
+    extra_vars: "{{ extra_vars | default('') }}"
+    token: "{{ callback_token | default('NoToken') }}"
+    callback_data: "Callback successfully executed"
 
+  tasks:
+    - name: Print callbackUrl
+      debug:
+        msg: "callbackUrl: {{ callbackUrl }}"
+
+    - name: Print ansible_domain
+      debug:
+        msg: "ansible_domain: {{ ansible_domain }}"
+
+    - name: Print extra_vars
+      debug:
+        msg: "extra_vars: {{ extra_vars }}"
+
+    # Only print out when absolutley neccessary
+    # - name: Print token
+    #   debug:
+    #     msg: "token: {{ token }}"
+
+    - name: Prepare callback data
+        set_fact:
+          callback_data: "Step executed successfully.\n\nNginx installation result: {{ nginx_result }}"
+          
+  # - name: Connect to NetApp ONTAP Cluster
+  #   hosts: netapp
+  #   tasks:
+  #     - name: Simulate authenticating to the ONTAP cluster
+  #       na_ontap_cluster:
+  #         hostname: "{{ netapp_hostname }}"
+  #         username: "{{ netapp_username }}"
+  #         password: "{{ netapp_password }}"
+  #         https: true
+          
+
+    - name: Callback to URL
+      uri:
+        url: "{{ callbackUrl }}"
+        method: PATCH
+        body_format: json
+        body: 
+          data: 
+            type: "task"
+            attributes: 
+              custom_field_values: 
+                - name: "Response"
+                  value: "{{ callback_data }}"
+        headers:
+          Accept: "application/json"
+          Content-Type: "application/json"
+          Authorization: "Bearer {{ token }}"
+      register: callback_response
+
+    - name: Print callback response
+      debug:
+        var: callback_response
