@@ -4,16 +4,15 @@
   gather_facts: no
   vars:
     ansible_domain: "{{ ansible_domain | default('False') }}"
-    extra_vars: "{{ extra_vars | default('') }}"
 
   tasks:
     - name: Print ansible_domain
       debug:
         msg: "ansible_domain: {{ ansible_domain }}"
 
-    - name: Print extra_vars
+    - name: Print netapp data
       debug:
-        msg: "extra_vars: {{ extra_vars }}"
+        var: dr.netapp
 
     - name: Set sample volume data
       set_fact:
