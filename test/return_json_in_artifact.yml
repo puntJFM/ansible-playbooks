@@ -1,1 +1,9 @@
 
+---
+- name: Return a custom JSON response
+  hosts: localhost
+  gather_facts: no
+  
+    - name: Print callback response
+      debug:
+        var: callback_response
