@@ -1,3 +1,4 @@
+---
 - name: Fail the playbook intentionally
   ansible.builtin.fail:
     msg: "Intentionally failing the playbook."
