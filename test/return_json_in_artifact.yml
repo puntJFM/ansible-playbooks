@@ -1,9 +1,14 @@
-
 ---
-- name: Return a custom JSON response
+- name: Playbook to return JSON formatted artifact
   hosts: localhost
-  gather_facts: no
-  
-    - name: Print callback response
-      debug:
-        var: callback_response
+  tasks:
+    - name: Set JSON artifact
+      set_stats:
+        data:
+          my_json_artifact:
+            key1: "value1"
+            key2: "value2"
+            key3: 
+              - "list_value_1"
+              - "list_value_2"
+              - "list_value_3"
