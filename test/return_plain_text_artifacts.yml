@@ -1,0 +1,9 @@
+---
+- name: Playbook to return plain text artifact
+  hosts: localhost
+  tasks:
+    - name: Set plain text artifact
+      set_stats:
+        data:
+          my_plain_text_artifact: "This is a plain text artifact"
+
