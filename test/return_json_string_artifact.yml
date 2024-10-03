@@ -1,0 +1,12 @@
+---
+- name: Playbook to return JSON string as artifact
+  hosts: localhost
+  tasks:
+    - name: Define JSON string
+      set_fact:
+        my_json_string: '{"key1": "value1", "key2": "value2"}'
+
+    - name: Set JSON string as artifact
+      set_stats:
+        data:
+          my_json_artifact: "{{ my_json_string }}"
