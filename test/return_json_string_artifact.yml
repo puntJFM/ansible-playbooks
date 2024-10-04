@@ -1,7 +1,12 @@
 ---
 - name: Playbook to return JSON string as artifact
+
   hosts: localhost
-  tasks:
+  gather_facts: no
+  tasks:   
+    - name: Sleep for 30 secs
+      command: /bin/sleep 30
+
     - name: Define JSON string
       set_fact:
         my_json_string: '{"key1": "value1", "key2": "value2"}'
