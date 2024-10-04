@@ -2,6 +2,8 @@
 - name: Playbook to return JSON formatted artifact
   hosts: localhost
   tasks:
+    - name: Sleep for 30 secs
+        command: /bin/sleep 30
     - name: Set JSON artifact
       set_stats:
         data:
