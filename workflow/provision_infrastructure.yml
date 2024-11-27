@@ -1,0 +1,20 @@
+---
+- name: Provision Cloud Infrastructure
+  hosts: localhost
+  gather_facts: no
+  tasks:
+    - name: Launch EC2 instance
+      amazon.aws.ec2_instance:
+        name: "web-server-instance"
+        key_name: "my-key-pair"
+        instance_type: "t2.micro"
+        image_id: "ami-0abcdef1234567890" # Replace with a valid AMI ID
+        region: "us-east-1"
+        state: "present"
+      register: ec2_instance
+
+    - name: Output instance details
+      debug:
+        msg: 
+          - "Instance ID: {{ ec2_instance.instance_ids[0] }}"
+          - "Public IP: {{ ec2_instance.instances[0].public_ip_address }}"
