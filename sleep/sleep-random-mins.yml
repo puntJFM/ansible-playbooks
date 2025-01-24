@@ -4,6 +4,12 @@
     sleep_min: 0.25    # Minimum sleep time in minutes
     sleep_max: 0.5     # Maximum sleep time in minutes
   tasks:
+    - name: Debug variable types
+      debug:
+        msg:
+          - "sleep_min_secs: {{ sleep_min_secs }} (type={{ sleep_min_secs | type_debug }})"
+          - "sleep_max_secs: {{ sleep_max_secs }} (type={{ sleep_max_secs | type_debug }})"
+
     - name: Convert minutes to seconds
       set_fact:
         sleep_min_secs: "{{ (sleep_min * 60) | int }}"
