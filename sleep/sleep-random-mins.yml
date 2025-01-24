@@ -1,19 +1,24 @@
 - name: Sleep for a random duration (supports fractional minutes)
   hosts: localhost
   vars:
-    sleep_min: 0.25    # Minimum sleep time in minutes
-    sleep_max: 0.5     # Maximum sleep time in minutes
+    sleep_min: 0.25    # Minimum sleep time in minutes (can be overridden via -e)
+    sleep_max: 0.5     # Maximum sleep time in minutes (can be overridden via -e)
   tasks:
+    - name: Convert input to floats
+      set_fact:
+        sleep_min_float: "{{ sleep_min | float }}"
+        sleep_max_float: "{{ sleep_max | float }}"
+
+    - name: Convert minutes to seconds
+      set_fact:
+        sleep_min_secs: "{{ (sleep_min_float * 60) | int }}"
+        sleep_max_secs: "{{ (sleep_max_float * 60) | int }}"
+
     - name: Debug variable types
       debug:
         msg:
           - "sleep_min_secs: {{ sleep_min_secs }} (type={{ sleep_min_secs | type_debug }})"
           - "sleep_max_secs: {{ sleep_max_secs }} (type={{ sleep_max_secs | type_debug }})"
-
-    - name: Convert minutes to seconds
-      set_fact:
-        sleep_min_secs: "{{ (sleep_min * 60) | int }}"
-        sleep_max_secs: "{{ (sleep_max * 60) | int }}"
 
     - name: Calculate random sleep time
       set_fact:
