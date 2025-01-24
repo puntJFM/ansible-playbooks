@@ -1,0 +1,21 @@
+- name: Sleep for a random duration (supports fractional minutes)
+  hosts: localhost
+  vars:
+    sleep_min: 0.25    # Minimum sleep time in minutes (e.g., 15 seconds)
+    sleep_max: 0.5     # Maximum sleep time in minutes (e.g., 30 seconds)
+  tasks:
+    - name: Convert minutes to seconds
+      set_fact:
+        sleep_min_secs: "{{ (sleep_min * 60) | round(0, 'ceil') }}"
+        sleep_max_secs: "{{ (sleep_max * 60) | round(0, 'ceil') }}"
+
+    - name: Calculate random sleep time
+      set_fact:
+        sleep_duration: "{{ lookup('random', sleep_min_secs ~ ',' ~ sleep_max_secs) }}"
+
+    - name: Output selected sleep duration
+      debug:
+        msg: "Sleeping for {{ sleep_duration }} seconds ({{ sleep_duration // 60 }} minutes and {{ sleep_duration % 60 }} seconds)."
+
+    - name: Sleep for the random duration
+      command: sleep {{ sleep_duration }}
