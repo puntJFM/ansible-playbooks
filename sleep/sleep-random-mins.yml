@@ -6,8 +6,8 @@
   tasks:
     - name: Convert minutes to seconds
       set_fact:
-        sleep_min_secs: "{{ (sleep_min * 60) | round(0, 'ceil') }}"
-        sleep_max_secs: "{{ (sleep_max * 60) | round(0, 'ceil') }}"
+        sleep_min_secs: "{{ (sleep_min * 60) | int }}"
+        sleep_max_secs: "{{ (sleep_max * 60) | int }}"
 
     - name: Calculate random sleep time
       set_fact:
