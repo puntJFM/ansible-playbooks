@@ -1,0 +1,106 @@
+---
+- name: Simulate EC2 deployment with periodic callbacks
+  hosts: localhost
+  gather_facts: no
+  vars:
+    callbackUrl: "{{ callbackUrl | default('https://default.callback.url') }}"
+    delete_inventory: "{{ delete_inventory | default('False') }}"
+    dry_run: "{{ dry_run | default('False') }}"
+    execution_job_tags: "{{ execution_job_tags | default('') }}"
+    execution_limit: "{{ execution_limit | default('') }}"
+    execution_skip_tags: "{{ execution_skip_tags | default('') }}"
+    extra_vars: "{{ extra_vars | default('') }}"
+    host_group: "{{ host_group | default('') }}"
+    job_template_or_workflow: "{{ job_template_or_workflow | default('') }}"
+    server_list: "{{ server_list | default('localhost') }}"
+    server_list_separator: "{{ server_list_separator | default(',') }}"
+    use_template_inventory: "{{ use_template_inventory | default('False') }}"
+    cutoverTransformKey: "{{ cutoverTransformKey | default('') }}"
+    token: "{{ token | default('NoToken') }}"
+    callback_data: "Callback successfully executed"
+    
+  tasks:
+    - name: Print input variables
+      debug:
+        msg: "callbackUrl: {{ callbackUrl }}"
+
+    - name: Simulate EC2 installation start
+      command: "sleep 5"
+      async: 0
+      poll: 0
+      register: yum_job
+
+    - name: Print callbackUrl
+      debug:
+        msg: "callbackUrl: {{ callbackUrl }}"
+
+    - name: Send initial callback
+      uri:
+        url: "{{ callbackUrl }}"
+        method: PATCH
+        body_format: json
+        body:
+          data:
+            type: "task"
+            attributes:
+              custom_field_values:
+                - name: "Response"
+                  value: "EC2 deployment started asynchronously."
+        headers:
+          Content-Type: "application/json"
+          Authorization: "Bearer {{ token }}"
+
+    - name: Wait for initial period
+      command: "sleep 15"
+
+    - name: Send in-progress callback
+      uri:
+        url: "{{ callbackUrl }}"
+        method: PATCH
+        body_format: json
+        body:
+          data:
+            type: "task"
+            attributes:
+              custom_field_values:
+                - name: "Response"
+                  value: "EC2 deployment in progress."
+        headers:
+          Content-Type: "application/json"
+          Authorization: "Bearer {{ token }}"
+
+    - name: Wait for completion
+      command: "sleep 15"
+
+    - name: Simulate EC2 installation completion
+      set_fact:
+        ec2_result:
+          changed: true
+          msg: "EC2 installed successfully"
+          rc: 0
+          stdout: "Simulated EC2 deployment output."
+
+    - name: Prepare callback data
+      set_fact:
+        callback_data: "EC2 deployment - executed successfully. EC2 installation result: {{ ec2_result }}"
+
+    - name: Send completion callback
+      uri:
+        url: "{{ callbackUrl }}/finish"
+        method: PATCH
+        body_format: json
+        body:
+          data:
+            type: "task"
+            attributes:
+              custom_field_values:
+                - name: "Response"
+                  value: "{{ callback_data }}"
+        headers:
+          Content-Type: "application/json"
+          Authorization: "Bearer {{ token }}"
+      register: callback_response
+
+    - name: Print callback response
+      debug:
+        var: callback_response
