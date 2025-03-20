@@ -4,18 +4,25 @@
   gather_facts: no
 
   tasks:
-    - name: Ensure extra_vars is properly set
-      set_fact:
-        extra_vars_dict: "{{ extra_vars | from_json if extra_vars is string else extra_vars | default({}) }}"
-
     - name: Print all available variables
       debug:
         var: vars
 
-    - name: Print full extra_vars
+    - name: Print ansible_facts
       debug:
-        var: extra_vars_dict
+        var: ansible_facts
 
-    - name: Print callback URL
+    - name: Print extra_vars if defined
       debug:
-        msg: "Callback URL: {{ extra_vars_dict.callbackUrl | default('https://default.callback.url') }}"
+        var: extra_vars
+      when: extra_vars is defined
+
+    - name: Print extra_vars from ansible_facts
+      debug:
+        var: ansible_facts.extra_vars
+      when: ansible_facts.extra_vars is defined
+
+    - name: Print extra_vars from hostvars
+      debug:
+        var: hostvars[inventory_hostname].extra_vars
+      when: hostvars[inventory_hostname].extra_vars is defined
