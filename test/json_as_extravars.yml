@@ -4,25 +4,14 @@
   gather_facts: no
 
   tasks:
-    - name: Print all available variables
-      debug:
-        var: vars
+    - name: Retrieve extra_vars manually
+      set_fact:
+        extra_vars_dict: "{{ lookup('env', 'ANSIBLE_EXTRA_VARS') | from_json if lookup('env', 'ANSIBLE_EXTRA_VARS') is string else {} }}"
 
-    - name: Print ansible_facts
+    - name: Print manually retrieved extra_vars
       debug:
-        var: ansible_facts
+        var: extra_vars_dict
 
-    - name: Print extra_vars if defined
+    - name: Print callback URL
       debug:
-        var: extra_vars
-      when: extra_vars is defined
-
-    - name: Print extra_vars from ansible_facts
-      debug:
-        var: ansible_facts.extra_vars
-      when: ansible_facts.extra_vars is defined
-
-    - name: Print extra_vars from hostvars
-      debug:
-        var: hostvars[inventory_hostname].extra_vars
-      when: hostvars[inventory_hostname].extra_vars is defined
+        msg: "Callback URL: {{ extra_vars_dict.callbackUrl | default('Not Provided') }}"
