@@ -2,20 +2,19 @@
 - name: Debug JSON extra vars
   hosts: localhost
   gather_facts: no
+  vars:
+    extra_vars: "{{ extra_vars | default('{}') | from_json if extra_vars is string else extra_vars }}"
+    callbackUrl: "{{ extra_vars.callbackUrl | default('https://default.callback.url') }}"
 
   tasks:
-    - name: Print all available variables
+    - name: Print all variables
       debug:
         var: vars
 
-    - name: Print extra_vars directly
+    - name: Print full extra_vars
       debug:
         var: extra_vars
 
-    - name: Print extra_vars type
+    - name: Print callback URL
       debug:
-        msg: "extra_vars is of type {{ extra_vars | type_debug }}"
-
-    - name: Print full context
-      debug:
-        var: ansible_facts
+        msg: "Callback URL: {{ callbackUrl }}"
