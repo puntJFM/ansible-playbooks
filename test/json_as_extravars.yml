@@ -4,15 +4,19 @@
   gather_facts: no
 
   tasks:
-    - name: Print raw extra_vars before conversion
+    - name: Print all variables for debugging
       debug:
-        var: extra_vars
-      when: extra_vars is defined
+        var: vars
 
-    - name: Convert extra_vars from string to JSON
+    - name: Print raw extra_vars from hostvars
+      debug:
+        var: hostvars[inventory_hostname].extra_vars
+      when: hostvars[inventory_hostname].extra_vars is defined
+
+    - name: Convert extra_vars from hostvars if needed
       set_fact:
-        extra_vars_dict: "{{ extra_vars | from_json if extra_vars is string else extra_vars | default({}) }}"
-      when: extra_vars is defined
+        extra_vars_dict: "{{ hostvars[inventory_hostname].extra_vars | from_json if hostvars[inventory_hostname].extra_vars is string else hostvars[inventory_hostname].extra_vars }}"
+      when: hostvars[inventory_hostname].extra_vars is defined
 
     - name: Print parsed extra_vars_dict
       debug:
