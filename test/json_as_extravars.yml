@@ -1,31 +1,24 @@
 ---
-- name: Debug JSON extra vars
+- name: Debug JSON custom_vars
   hosts: localhost
   gather_facts: no
 
   tasks:
-    - name: Print raw extra_vars (before conversion)
+    - name: Print all available variables
       debug:
-        var: extra_vars
+        var: vars
 
-    - name: Convert extra_vars from string to JSON
+    - name: Print raw custom_vars (before conversion)
+      debug:
+        var: custom_vars
+      when: custom_vars is defined
+
+    - name: Convert custom_vars from string to JSON
       set_fact:
-        extra_vars_dict: "{{ extra_vars | from_json if extra_vars is string else extra_vars | default({}) }}"
+        custom_vars_dict: "{{ custom_vars | from_json if custom_vars is string else custom_vars | default({}) }}"
+      when: custom_vars is defined
 
-    - name: Print parsed extra_vars_dict
+    - name: Print parsed custom_vars_dict
       debug:
-        var: extra_vars_dict
-
-    - name: Parse nested JSON fields if needed
-      set_fact:
-        json_data_parsed: "{{ extra_vars_dict.json_data | from_json if extra_vars_dict.json_data is string else extra_vars_dict.json_data }}"
-      when: extra_vars_dict.json_data is defined
-
-    - name: Print parsed json_data
-      debug:
-        var: json_data_parsed
-      when: json_data_parsed is defined
-
-    - name: Print callback URL
-      debug:
-        msg: "Callback URL: {{ extra_vars_dict.callbackUrl | default('Not Provided') }}"
+        var: custom_vars_dict
+      when: custom_vars_dict is defined
