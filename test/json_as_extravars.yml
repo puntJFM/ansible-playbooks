@@ -1,0 +1,20 @@
+---
+- name: Take JSON as extra vars
+  hosts: localhost
+  gather_facts: no
+  vars:
+    callbackUrl: "{{ callbackUrl | default('https://default.callback.url') }}"
+    extra_vars: "{{ extra_vars | default('{}') | from_json }}"
+
+  tasks:
+    - name: Print extracted variables from extra_vars
+      debug:
+        msg: "Received JSON Data: {{ extra_vars }}"
+
+    - name: Use extracted values if they exist
+      debug:
+        msg: "Extracted value for key1: {{ extra_vars.key1 | default('Not provided') }}"
+
+    - name: Print callback URL
+      debug:
+        msg: "Callback URL: {{ callbackUrl }}"
