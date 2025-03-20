@@ -4,11 +4,11 @@
   gather_facts: no
 
   tasks:
-    - name: Retrieve extra_vars manually
+    - name: Convert stringified extra_vars to JSON
       set_fact:
-        extra_vars_dict: "{{ lookup('env', 'ANSIBLE_EXTRA_VARS') | from_json if lookup('env', 'ANSIBLE_EXTRA_VARS') is string else {} }}"
+        extra_vars_dict: "{{ extra_vars | from_json if extra_vars is string else extra_vars | default({}) }}"
 
-    - name: Print manually retrieved extra_vars
+    - name: Print parsed extra_vars
       debug:
         var: extra_vars_dict
 
