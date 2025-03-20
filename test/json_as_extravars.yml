@@ -7,6 +7,10 @@
     parsed_json: "{{ extra_vars.json | default('{}') | from_json }}"
 
   tasks:
+    - name: Print extra_vars type
+      debug:
+        msg: "extra_vars is of type {{ extra_vars | type_debug }}"
+  
     - name: Print full extra_vars
       debug:
         var: extra_vars
