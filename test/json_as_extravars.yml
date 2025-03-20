@@ -1,5 +1,5 @@
 ---
-- name: Debug JSON custom_vars
+- name: Debug JSON extra vars
   hosts: localhost
   gather_facts: no
 
@@ -8,17 +8,17 @@
       debug:
         var: vars
 
-    - name: Print raw custom_vars (before conversion)
+    - name: Print raw extra_vars (if available)
       debug:
-        var: custom_vars
-      when: custom_vars is defined
+        var: extra_vars
+      when: extra_vars is defined
 
-    - name: Convert custom_vars from string to JSON
+    - name: Convert extra_vars from string to JSON
       set_fact:
-        custom_vars_dict: "{{ custom_vars | from_json if custom_vars is string else custom_vars | default({}) }}"
-      when: custom_vars is defined
+        extra_vars_dict: "{{ extra_vars | from_json if extra_vars is string else extra_vars }}"
+      when: extra_vars is defined
 
-    - name: Print parsed custom_vars_dict
+    - name: Print parsed extra_vars_dict
       debug:
-        var: custom_vars_dict
-      when: custom_vars_dict is defined
+        var: extra_vars_dict
+      when: extra_vars_dict is defined
