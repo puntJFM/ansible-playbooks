@@ -3,18 +3,14 @@
   hosts: localhost
   gather_facts: no
   vars:
-    callbackUrl: "{{ callbackUrl | default('https://default.callback.url') }}"
-    extra_vars: "{{ extra_vars | default('{}') | from_json }}"
+    callbackUrl: "{{ extra_vars.callbackUrl | default('https://default.callback.url') }}"
+    parsed_json: "{{ extra_vars.json | default('{}') | from_json }}"
 
   tasks:
-    - name: Print extracted variables from extra_vars
+    - name: Print full extra_vars
       debug:
-        msg: "Received JSON Data: {{ extra_vars }}"
+        var: extra_vars
 
-    - name: Use extracted values if they exist
+    - name: Print JSON payload
       debug:
-        msg: "Extracted value for key1: {{ extra_vars.key1 | default('Not provided') }}"
-
-    - name: Print callback URL
-      debug:
-        msg: "Callback URL: {{ callbackUrl }}"
+        var: parsed_json
