@@ -2,19 +2,20 @@
 - name: Debug JSON extra vars
   hosts: localhost
   gather_facts: no
-  vars:
-    extra_vars: "{{ extra_vars | default('{}') | from_json if extra_vars is string else extra_vars }}"
-    callbackUrl: "{{ extra_vars.callbackUrl | default('https://default.callback.url') }}"
 
   tasks:
-    - name: Print all variables
+    - name: Ensure extra_vars is properly set
+      set_fact:
+        extra_vars_dict: "{{ extra_vars | from_json if extra_vars is string else extra_vars | default({}) }}"
+
+    - name: Print all available variables
       debug:
         var: vars
 
     - name: Print full extra_vars
       debug:
-        var: extra_vars
+        var: extra_vars_dict
 
     - name: Print callback URL
       debug:
-        msg: "Callback URL: {{ callbackUrl }}"
+        msg: "Callback URL: {{ extra_vars_dict.callbackUrl | default('https://default.callback.url') }}"
