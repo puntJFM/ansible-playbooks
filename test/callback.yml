@@ -4,11 +4,6 @@
   gather_facts: false
 
   vars:
-    runbook_id:    "{{ runbook_id }}"
-    task_id:       "{{ task_id }}"
-    callback_token: "{{ callback_token }}"
-    cutover_domain: "{{ domain }}"
-    custom_field_name: "{{ custom_field_name }}"
     callbackUrl: >
       https://{{ cutover_domain }}/core/runbooks/{{ runbook_id }}/tasks/{{ task_id }}/integration/status
 
