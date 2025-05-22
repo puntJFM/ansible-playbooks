@@ -7,8 +7,12 @@
     runbook_id:    "{{ extra_vars.runbook_id }}"
     task_id:       "{{ extra_vars.task_id }}"
     callback_token: "{{ extra_vars.callback_token }}"
+    cutover_domain: "{{ extra_vars.domain }}"
+    custom_field_name: "{{ extra_vars.custom_field_name }}"
     callbackUrl: >
-      https://api.cint-01.dev.cutover.cloud/core/runbooks/{{ runbook_id }}/tasks/{{ task_id }}/integration/status
+      https://{{ cutover_domain }}/core/runbooks/{{ runbook_id }}/tasks/{{ task_id }}/integration/status
+
+api.cint-01.dev.cutover.cloud
 
   tasks:
     - name: Process step 1
@@ -25,7 +29,7 @@
             type: "integration_status_update"
             attributes:
               custom_field_values:
-                - name: "Ansible Text Only Response"
+                - name: "{{ custom_field_name }}"
                   value: "Step 1 - Initialization complete."
               status: "running"
         headers:
@@ -46,7 +50,7 @@
             type: "integration_status_update"
             attributes:
               custom_field_values:
-                - name: "Ansible Text Only Response"
+                - name: "{{ custom_field_name }}"
                   value: "Step 2 - Configuration applied."
               status: "running"
         headers:
@@ -67,7 +71,7 @@
             type: "integration_status_update"
             attributes:
               custom_field_values:
-                - name: "Ansible Text Only Response"
+                - name: "{{ custom_field_name }}"
                   value: "Step 3 - Dependencies installed."
               status: "running"
         headers:
@@ -88,7 +92,7 @@
             type: "integration_status_update"
             attributes:
               custom_field_values:
-                - name: "Ansible Text Only Response"
+                - name: "{{ custom_field_name }}"
                   value: "Step 4 - Finished processing."
               status: "success"
         headers:
