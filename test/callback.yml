@@ -13,6 +13,10 @@
       https://{{ cutover_domain }}/core/runbooks/{{ runbook_id }}/tasks/{{ task_id }}/integration/status
 
   tasks:
+    - name: Show all host vars for localhost
+      debug:
+        var: hostvars['localhost']
+  
     - name: “Show all extra-vars”
       debug:
         var: extra_vars
