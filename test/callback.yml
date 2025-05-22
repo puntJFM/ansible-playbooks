@@ -12,8 +12,6 @@
     callbackUrl: >
       https://{{ cutover_domain }}/core/runbooks/{{ runbook_id }}/tasks/{{ task_id }}/integration/status
 
-api.cint-01.dev.cutover.cloud
-
   tasks:
     - name: Process step 1
       debug:
