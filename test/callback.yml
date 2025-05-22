@@ -1,0 +1,96 @@
+---
+- name: Playbook with Callbacks
+  hosts: localhost
+  gather_facts: false
+
+  vars:
+    runbook_id:    "{{ extra_vars.runbook_id }}"
+    task_id:       "{{ extra_vars.task_id }}"
+    callback_token: "{{ extra_vars.callback_token }}"
+    callbackUrl: >
+      https://api.cint-01.dev.cutover.cloud/core/runbooks/{{ runbook_id }}/tasks/{{ task_id }}/integration/status
+
+  tasks:
+    - name: Process step 1
+      debug:
+        msg: "Dummy processing for step 1"
+
+    - name: Send in-progress callback after step 1
+      uri:
+        url: "{{ callbackUrl }}"
+        method: PATCH
+        body_format: json
+        body:
+          data:
+            type: "integration_status_update"
+            attributes:
+              custom_field_values:
+                - name: "Ansible Text Only Response"
+                  value: "Step 1 - Initialization complete."
+              status: "running"
+        headers:
+          Content-Type: "application/json"
+          Authorization: "Bearer {{ callback_token }}"
+
+    - name: Process step 2
+      debug:
+        msg: "Dummy processing for step 2"
+
+    - name: Send in-progress callback after step 2
+      uri:
+        url: "{{ callbackUrl }}"
+        method: PATCH
+        body_format: json
+        body:
+          data:
+            type: "integration_status_update"
+            attributes:
+              custom_field_values:
+                - name: "Ansible Text Only Response"
+                  value: "Step 2 - Configuration applied."
+              status: "running"
+        headers:
+          Content-Type: "application/json"
+          Authorization: "Bearer {{ callback_token }}"
+
+    - name: Process step 3
+      debug:
+        msg: "Dummy processing for step 3"
+
+    - name: Send in-progress callback after step 3
+      uri:
+        url: "{{ callbackUrl }}"
+        method: PATCH
+        body_format: json
+        body:
+          data:
+            type: "integration_status_update"
+            attributes:
+              custom_field_values:
+                - name: "Ansible Text Only Response"
+                  value: "Step 3 - Dependencies installed."
+              status: "running"
+        headers:
+          Content-Type: "application/json"
+          Authorization: "Bearer {{ callback_token }}"
+
+    - name: Process step 4
+      debug:
+        msg: "Dummy processing for step 4"
+
+    - name: Send final success callback after step 4
+      uri:
+        url: "{{ callbackUrl }}"
+        method: PATCH
+        body_format: json
+        body:
+          data:
+            type: "integration_status_update"
+            attributes:
+              custom_field_values:
+                - name: "Ansible Text Only Response"
+                  value: "Step 4 - Finished processing."
+              status: "success"
+        headers:
+          Content-Type: "application/json"
+          Authorization: "Bearer {{ callback_token }}"
