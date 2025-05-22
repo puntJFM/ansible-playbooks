@@ -13,6 +13,18 @@
       https://{{ cutover_domain }}/core/runbooks/{{ runbook_id }}/tasks/{{ task_id }}/integration/status
 
   tasks:
+    - name: “Show all extra-vars”
+      debug:
+        var: extra_vars
+
+    - name: “Show parsed runbook_id, task_id, etc.”
+      debug:
+        msg:
+          - "runbook_id       = {{ runbook_id }}"
+          - "task_id          = {{ task_id }}"
+          - "callback_token   = {{ callback_token }}"
+          - "cutover_domain   = {{ cutover_domain }}"
+          - "custom_field_name = {{ custom_field_name }}"
     - name: Process step 1
       debug:
         msg: "Dummy processing for step 1"
