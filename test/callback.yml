@@ -13,6 +13,15 @@
       https://{{ cutover_domain }}/core/runbooks/{{ runbook_id }}/tasks/{{ task_id }}/integration/status
 
   tasks:
+    - name: Dump the extra-vars
+      debug:
+        msg:
+          - "runbook_id        = {{ runbook_id       | default('UNDEFINED') }}"
+          - "task_id           = {{ task_id          | default('UNDEFINED') }}"
+          - "callback_token    = {{ callback_token   | default('UNDEFINED') }}"
+          - "cutover_domain    = {{ cutover_domain   | default('UNDEFINED') }}"
+          - "custom_field_name = {{ custom_field_name| default('UNDEFINED') }}"
+          
     - name: Show all host vars for localhost
       debug:
         var: hostvars['localhost']
