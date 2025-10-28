@@ -1,0 +1,23 @@
+---
+- name: Return input parameters in job result
+  hosts: localhost
+  gather_facts: no
+
+  tasks:
+    - name: Display received vars
+      debug:
+        msg:
+          - "Production Server: {{ Production_Server }}"
+          - "DR Server: {{ DR_Server }}"
+          - "DB Name: {{ DB_Name }}"
+
+    - name: Simulate processing
+      command: sleep 5
+
+    - name: Append variables to AWX job artifacts
+      set_stats:
+        data:
+          Production_Server: "{{ Production_Server }}"
+          DR_Server: "{{ DR_Server }}"
+          DB_Name: "{{ DB_Name }}"
+        per_host: no
