@@ -1,0 +1,9 @@
+- hosts: localhost
+  gather_facts: false
+  tasks:
+    - name: Validate input
+      assert:
+        that: false
+        fail_msg: "Input validation failed: missing 'db_name'"
+    - name: Never runs
+      debug: msg="after failure"
