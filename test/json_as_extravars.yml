@@ -4,6 +4,20 @@
   gather_facts: no
 
   tasks:
+
+    - name: Show key vars passed in
+      debug:
+        msg:
+          - "controller_username: {{ controller_username | default('NOT SET') }}"
+          - "controller_password: {{ controller_password | default('NOT SET') }}"
+          - "controller_host: {{ controller_host | default('NOT SET') }}"
+          - "dbi_api_url: {{ dbi_api_url | default('NOT SET') }}"
+          - "ccp_app_id: {{ ccp_app_id | default('NOT SET') }}"
+
+    - name: Use DBI API token
+      debug:
+        msg: "Token from env: {{ lookup('env', 'dbi_api_auth_token') }}"
+  
     - name: Print all variables for debugging
       debug:
         var: vars
