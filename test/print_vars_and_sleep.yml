@@ -1,0 +1,19 @@
+---
+- name: Print all extra vars and sleep
+  hosts: localhost
+  gather_facts: no
+
+  tasks:
+    - name: Display all variables passed in extra_vars
+      debug:
+        var: vars
+
+    - name: Show just the custom vars (filtering out Ansible internals)
+      debug:
+        msg: "{{ vars | dict2items
+                   | rejectattr('key', 'match', '^ansible_')
+                   | rejectattr('key', 'match', '^AWX_')
+                   | list }}"
+
+    - name: Sleep for 15 seconds
+      command: sleep 15
