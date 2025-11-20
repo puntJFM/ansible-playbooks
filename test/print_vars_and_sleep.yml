@@ -2,11 +2,47 @@
 - name: Print all extra vars and sleep
   hosts: localhost
   gather_facts: no
-  
+
   tasks:
-    - name: FULL DUMP (no filtering)
+
+    - name: Identify extra vars (exclude AWX/Tower internal vars)
+      set_fact:
+        user_extra_vars: >-
+          {{
+            vars
+            | dict2items
+            | rejectattr('key', 'match', '^ansible_')
+            | rejectattr('key', 'match', '^awx_')
+            | rejectattr('key', 'match', '^tower_')
+            | rejectattr('key', 'in', [
+                'inventory_dir',
+                'inventory_file',
+                'omit',
+                'playbook_dir',
+                'group_names',
+                'inventory_hostname',
+                'inventory_hostname_short',
+                'groups',
+                'ansible_check_mode',
+                'ansible_diff_mode',
+                'ansible_forks',
+                'ansible_inventory_sources',
+                'ansible_playbook_python',
+                'ansible_skip_tags',
+                'ansible_run_tags',
+                'ansible_verbosity'
+              ])
+            | list
+          }}
+
+    - name: Print only extra vars passed in
       debug:
-        var: vars
+        msg: "{{ item.key }} = {{ item.value }}"
+      loop: "{{ user_extra_vars }}"
+
+    # - name: FULL DUMP (no filtering)
+    #   debug:
+    #     var: vars
 
     - name: Sleep 15
       command: sleep 15
