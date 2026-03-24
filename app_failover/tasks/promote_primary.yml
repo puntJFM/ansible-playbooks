@@ -1,0 +1,31 @@
+---
+- name: Promote target to primary
+  ansible.builtin.shell: |
+    set -o pipefail
+    echo "Promoting {{ target_primary }} to primary in {{ env_name }}"
+    # Replace with real implementation, for example:
+    # /opt/app/bin/switchover --target {{ target_primary }} --env {{ env_name }}
+    # or API/DB command using PROMOTION_SECRET
+  args:
+    executable: /bin/bash
+  register: promote_result
+  changed_when: true
+  environment:
+    PROMOTION_SECRET: "{{ privileged_secret }}"
+  no_log: true
+
+- name: Request post-promotion validation
+  ansible.builtin.uri:
+    url: "{{ dbi_validate_endpoint }}"
+    method: POST
+    headers:
+      Authorization: "Bearer {{ dbi_api_authkey }}"
+      Content-Type: "application/json"
+    body_format: json
+    body:
+      ticket: "{{ sf_ticket }}"
+      environment: "{{ env_name }}"
+      target_primary: "{{ target_primary }}"
+      status: "validation_requested"
+    status_code: [200, 201, 202, 404]
+  failed_when: false
