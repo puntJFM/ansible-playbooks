@@ -1,0 +1,46 @@
+---
+- name: Release scheduler activity
+  ansible.builtin.shell: |
+    set -o pipefail
+    echo "Releasing scheduler activity after switchover on {{ autoserv_name }}"
+    # {{ autosys_cli_path }}/sendevent -E JOB_OFF_HOLD -J {{ autosys_job_selector }} -s {{ autoserv_name }}
+  args:
+    executable: /bin/bash
+  delegate_to: "{{ autosys_cli_host }}"
+  register: autosys_release
+  changed_when: autosys_resume_enabled | bool
+  when: autosys_resume_enabled | bool
+
+- name: Mark change completed
+  ansible.builtin.uri:
+    url: "{{ change_event_endpoint }}"
+    method: POST
+    headers:
+      Authorization: "Bearer {{ dbi_api_authkey }}"
+      Content-Type: "application/json"
+    body_format: json
+    body:
+      event_type: "planned_switchover"
+      state: "completed"
+      details:
+        target_primary: "{{ target_primary }}"
+        environment: "{{ env_name }}"
+      message: "Switchover completed successfully for {{ target_primary }}"
+    status_code: [200, 201, 202, 404]
+  failed_when: false
+
+- name: Mark overall status completed
+  ansible.builtin.uri:
+    url: "{{ dbi_status_endpoint }}"
+    method: POST
+    headers:
+      Authorization: "Bearer {{ dbi_api_authkey }}"
+      Content-Type: "application/json"
+    body_format: json
+    body:
+      ticket: "{{ sf_ticket }}"
+      operation: "{{ operation }}"
+      environment: "{{ env_name }}"
+      target_primary: "{{ target_primary }}"
+      status: "completed"
+    status_code: [200, 201, 202]
