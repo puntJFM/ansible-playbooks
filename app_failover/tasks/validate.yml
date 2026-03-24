@@ -1,0 +1,28 @@
+---
+- name: Assert required variables
+  ansible.builtin.assert:
+    that:
+      - operation is defined
+      - operation | lower == 'switchover'
+      - target_primary | length > 0
+      - autosys_config is defined
+      - autosys_config[env_name] is defined
+      - ccp_url is defined
+      - ccp_app_id is defined
+      - ccp_username is defined
+      - ccp_password is defined
+      - ca_safe is defined
+      - dbi_api_url is defined
+      - dbi_api_authkey is defined
+      - sf_ticket is defined
+    fail_msg: "Required switchover variables are missing or invalid."
+
+- name: Show execution summary
+  ansible.builtin.debug:
+    msg:
+      - "Operation      : {{ operation }}"
+      - "Environment    : {{ env_name }}"
+      - "Target primary : {{ target_primary }}"
+      - "Ticket         : {{ sf_ticket }}"
+      - "AutoSys host   : {{ autosys_cli_host }}"
+      - "AUTOSERV       : {{ autoserv_name }}"
