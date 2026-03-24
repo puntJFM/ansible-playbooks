@@ -1,0 +1,15 @@
+---
+target_environment: ""
+
+dbi_status_endpoint: "{{ dbi_api_url }}/switchover/status"
+dbi_context_endpoint: "{{ dbi_api_url }}/switchover/context"
+dbi_precheck_endpoint: "{{ dbi_api_url }}/switchover/precheck"
+dbi_validate_endpoint: "{{ dbi_api_url }}/switchover/validate"
+dbi_primary_endpoint: "{{ dbi_api_url }}/switchover/primary"
+
+change_event_endpoint: "{{ dbi_api_url }}/change/{{ sf_ticket }}/events"
+
+autosys_job_selector: "APP_BOX"
+autosys_pause_enabled: true
+autosys_resume_enabled: true
+validate_certs: false
