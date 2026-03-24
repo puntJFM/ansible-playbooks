@@ -1,0 +1,34 @@
+---
+- name: Retrieve privileged secret from CyberArk CCP
+  ansible.builtin.uri:
+    url: >-
+      {{ ccp_url }}/AIMWebService/api/Accounts
+      ?AppID={{ ccp_app_id | urlencode }}
+      &Safe={{ ca_safe | urlencode }}
+      &UserName={{ ccp_username | urlencode }}
+    method: GET
+    url_username: "{{ ccp_username }}"
+    url_password: "{{ ccp_password }}"
+    force_basic_auth: true
+    return_content: true
+    validate_certs: "{{ validate_certs }}"
+    status_code: 200
+  register: ccp_secret_response
+  no_log: true
+
+- name: Extract secret from CCP response
+  ansible.builtin.set_fact:
+    privileged_secret: >-
+      {{
+        ccp_secret_response.json.Content
+        | default(ccp_secret_response.json.content)
+        | default('')
+      }}
+  no_log: true
+
+- name: Assert privileged secret exists
+  ansible.builtin.assert:
+    that:
+      - privileged_secret | length > 0
+    fail_msg: "CyberArk CCP did not return a usable secret."
+  no_log: true
