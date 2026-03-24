@@ -1,0 +1,50 @@
+---
+- name: Update system of record with new primary
+  ansible.builtin.uri:
+    url: "{{ dbi_primary_endpoint }}"
+    method: POST
+    headers:
+      Authorization: "Bearer {{ dbi_api_authkey }}"
+      Content-Type: "application/json"
+    body_format: json
+    body:
+      ticket: "{{ sf_ticket }}"
+      environment: "{{ env_name }}"
+      new_primary: "{{ target_primary }}"
+      operation: "{{ operation }}"
+      status: "promoted"
+    status_code: [200, 201, 202]
+
+- name: Mark change as implemented
+  ansible.builtin.uri:
+    url: "{{ change_event_endpoint }}"
+    method: POST
+    headers:
+      Authorization: "Bearer {{ dbi_api_authkey }}"
+      Content-Type: "application/json"
+    body_format: json
+    body:
+      event_type: "planned_switchover"
+      state: "implemented"
+      details:
+        target_primary: "{{ target_primary }}"
+        environment: "{{ env_name }}"
+      message: "Primary promoted to {{ target_primary }}"
+    status_code: [200, 201, 202, 404]
+  failed_when: false
+
+- name: Update status to promoted
+  ansible.builtin.uri:
+    url: "{{ dbi_status_endpoint }}"
+    method: POST
+    headers:
+      Authorization: "Bearer {{ dbi_api_authkey }}"
+      Content-Type: "application/json"
+    body_format: json
+    body:
+      ticket: "{{ sf_ticket }}"
+      operation: "{{ operation }}"
+      environment: "{{ env_name }}"
+      target_primary: "{{ target_primary }}"
+      status: "promoted"
+    status_code: [200, 201, 202]
