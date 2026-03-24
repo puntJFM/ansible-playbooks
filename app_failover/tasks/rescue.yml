@@ -1,0 +1,50 @@
+---
+- name: Record failed status
+  ansible.builtin.uri:
+    url: "{{ dbi_status_endpoint }}"
+    method: POST
+    headers:
+      Authorization: "Bearer {{ dbi_api_authkey }}"
+      Content-Type: "application/json"
+    body_format: json
+    body:
+      ticket: "{{ sf_ticket }}"
+      operation: "{{ operation }}"
+      environment: "{{ env_name }}"
+      target_primary: "{{ target_primary }}"
+      status: "failed"
+    status_code: [200, 201, 202, 404]
+  failed_when: false
+
+- name: Mark change failed
+  ansible.builtin.uri:
+    url: "{{ change_event_endpoint }}"
+    method: POST
+    headers:
+      Authorization: "Bearer {{ dbi_api_authkey }}"
+      Content-Type: "application/json"
+    body_format: json
+    body:
+      event_type: "planned_switchover"
+      state: "failed"
+      details:
+        target_primary: "{{ target_primary }}"
+        environment: "{{ env_name }}"
+      message: "Switchover failed and needs investigation"
+    status_code: [200, 201, 202, 404]
+  failed_when: false
+
+- name: Attempt scheduler release after failure
+  ansible.builtin.shell: |
+    set -o pipefail
+    echo "Attempting scheduler release after failure on {{ autoserv_name }}"
+    # {{ autosys_cli_path }}/sendevent -E JOB_OFF_HOLD -J {{ autosys_job_selector }} -s {{ autoserv_name }}
+  args:
+    executable: /bin/bash
+  delegate_to: "{{ autosys_cli_host }}"
+  changed_when: true
+  failed_when: false
+
+- name: Fail clearly
+  ansible.builtin.fail:
+    msg: "Planned switchover failed for {{ target_primary }} in {{ env_name }}. Check prior task output."
