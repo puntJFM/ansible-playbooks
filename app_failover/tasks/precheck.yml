@@ -1,0 +1,71 @@
+---
+- name: Mark precheck started
+  ansible.builtin.uri:
+    url: "{{ dbi_status_endpoint }}"
+    method: POST
+    headers:
+      Authorization: "Bearer {{ dbi_api_authkey }}"
+      Content-Type: "application/json"
+    body_format: json
+    body:
+      ticket: "{{ sf_ticket }}"
+      operation: "{{ operation }}"
+      environment: "{{ env_name }}"
+      target_primary: "{{ target_primary }}"
+      status: "precheck_started"
+    status_code: [200, 201, 202]
+
+- name: Associate start with change ticket
+  ansible.builtin.uri:
+    url: "{{ change_event_endpoint }}"
+    method: POST
+    headers:
+      Authorization: "Bearer {{ dbi_api_authkey }}"
+      Content-Type: "application/json"
+    body_format: json
+    body:
+      event_type: "planned_switchover"
+      state: "started"
+      details: "{{ switchover_context }}"
+      message: "Planned switchover started for {{ target_primary }}"
+    status_code: [200, 201, 202, 404]
+  failed_when: false
+
+- name: Run optional precheck hook
+  ansible.builtin.uri:
+    url: "{{ dbi_precheck_endpoint }}"
+    method: POST
+    headers:
+      Authorization: "Bearer {{ dbi_api_authkey }}"
+      Content-Type: "application/json"
+    body_format: json
+    body:
+      ticket: "{{ sf_ticket }}"
+      environment: "{{ env_name }}"
+      target_primary: "{{ target_primary }}"
+      autoserv: "{{ autoserv_name }}"
+      parameter_check: "{{ parameter_check }}"
+      skylight_testing: "{{ skylight_testing }}"
+    status_code: [200, 201, 202, 404]
+  register: precheck_api
+  failed_when: false
+
+- name: Persist switchover context
+  ansible.builtin.uri:
+    url: "{{ dbi_context_endpoint }}"
+    method: POST
+    headers:
+      Authorization: "Bearer {{ dbi_api_authkey }}"
+      Content-Type: "application/json"
+    body_format: json
+    body:
+      ticket: "{{ sf_ticket }}"
+      environment: "{{ env_name }}"
+      autosys:
+        autoserv: "{{ autoserv_name }}"
+        server1: "{{ autosys_server1 }}"
+        server2: "{{ autosys_server2 }}"
+        cli_host: "{{ autosys_cli_host }}"
+        cli_path: "{{ autosys_cli_path }}"
+    status_code: [200, 201, 202, 404]
+  failed_when: false
