@@ -1,0 +1,72 @@
+---
+- name: Planned switchover orchestration
+  hosts: localhost
+  gather_facts: false
+
+  vars_files:
+    - vars/defaults.yml
+
+  vars:
+    requested_primary_list: "{{ new_primary_instance_list | default('') | split(',') | map('trim') | reject('equalto', '') | list }}"
+    target_primary: "{{ requested_primary_list[0] if requested_primary_list | length > 0 else '' }}"
+
+    env_name: >-
+      {{
+        target_environment
+        if (target_environment is defined and target_environment | length > 0)
+        else (
+          'PRD'
+          if (target_primary | upper is search('P') or (sf_ticket | default('')) | upper is search('CHG'))
+          else 'UAT'
+        )
+      }}
+
+    autosys_env: "{{ autosys_config[env_name] }}"
+    autosys_server1: "{{ autosys_env.SERVER1 }}"
+    autosys_server2: "{{ autosys_env.SERVER2 }}"
+    autoserv_name: "{{ autosys_env.AUTOSERV }}"
+
+    switchover_context:
+      ticket: "{{ sf_ticket }}"
+      operation: "{{ operation }}"
+      environment: "{{ env_name }}"
+      target_primary: "{{ target_primary }}"
+      aap_var_row_id: "{{ aap_var_row_id | default(0) }}"
+      parameter_check: "{{ parameter_check | default('No') }}"
+      skylight_testing: "{{ skylight_testing | default(false) }}"
+
+  tasks:
+    - name: Validate inputs
+      import_tasks: tasks/validate.yml
+
+    - name: Execute planned switchover
+      block:
+        - name: Precheck and register start
+          import_tasks: tasks/precheck.yml
+
+        - name: Pull privileged credentials
+          import_tasks: tasks/get_creds.yml
+
+        - name: Pause AutoSys activity
+          import_tasks: tasks/autosys_pause.yml
+
+        - name: Promote target primary
+          import_tasks: tasks/promote_primary.yml
+
+        - name: Update APIs and system of record
+          import_tasks: tasks/update_records.yml
+
+        - name: Resume AutoSys activity
+          import_tasks: tasks/autosys_resume.yml
+
+      rescue:
+        - name: Handle failure path
+          import_tasks: tasks/rescue.yml
+
+    - name: Final summary
+      ansible.builtin.debug:
+        msg:
+          - "Switchover flow finished"
+          - "Ticket         : {{ sf_ticket }}"
+          - "Environment    : {{ env_name }}"
+          - "Target primary : {{ target_primary }}"
