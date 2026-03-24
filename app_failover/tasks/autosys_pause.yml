@@ -1,0 +1,39 @@
+---
+- name: Inspect AutoSys state
+  ansible.builtin.shell: |
+    set -o pipefail
+    echo "Inspecting AutoSys state for {{ autoserv_name }}"
+    # {{ autosys_cli_path }}/autorep -M ALL -q
+  args:
+    executable: /bin/bash
+  delegate_to: "{{ autosys_cli_host }}"
+  register: autosys_inspect
+  changed_when: false
+  failed_when: false
+
+- name: Hold scheduler activity
+  ansible.builtin.shell: |
+    set -o pipefail
+    echo "Holding scheduler activity for ticket {{ sf_ticket }} on {{ autoserv_name }}"
+    # {{ autosys_cli_path }}/sendevent -E JOB_ON_HOLD -J {{ autosys_job_selector }} -s {{ autoserv_name }}
+  args:
+    executable: /bin/bash
+  delegate_to: "{{ autosys_cli_host }}"
+  register: autosys_hold
+  changed_when: autosys_pause_enabled | bool
+  when: autosys_pause_enabled | bool
+
+- name: Update status to scheduler_paused
+  ansible.builtin.uri:
+    url: "{{ dbi_status_endpoint }}"
+    method: POST
+    headers:
+      Authorization: "Bearer {{ dbi_api_authkey }}"
+      Content-Type: "application/json"
+    body_format: json
+    body:
+      ticket: "{{ sf_ticket }}"
+      status: "scheduler_paused"
+      environment: "{{ env_name }}"
+      target_primary: "{{ target_primary }}"
+    status_code: [200, 201, 202]
