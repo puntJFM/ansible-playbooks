@@ -1,0 +1,19 @@
+---
+- name: Cutover integration user can launch this playbook
+  hosts: localhost
+  gather_facts: false
+
+  tasks:
+    - name: Show this is the approved playbook
+      debug:
+        msg: "This is the APPROVED playbook. The Cutover integration user is allowed to launch this job template."
+
+    - name: Show all Cutover extra vars
+      debug:
+        msg: "{{ item.key }} = {{ item.value }}"
+      loop: "{{ cutover_vars | default({}) | dict2items }}"
+
+    - name: Show full Cutover vars object
+      debug:
+        var: cutover_vars
+      when: cutover_vars is defined
