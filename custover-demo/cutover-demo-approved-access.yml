@@ -1,9 +1,13 @@
 ---
-- name: Cutover task can launch this playbook
+- name: Cutover approved access demo
   hosts: localhost
   gather_facts: false
 
   tasks:
+    - name: Show this is the approved playbook
+      debug:
+        msg: "This is the APPROVED playbook. Cutover is allowed to launch this job template."
+
     - name: Show all Cutover extra vars
       debug:
         msg: "{{ item.key }} = {{ item.value }}"
