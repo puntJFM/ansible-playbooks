@@ -1,0 +1,19 @@
+---
+- name: Cutover restricted access demo
+  hosts: localhost
+  gather_facts: false
+
+  tasks:
+    - name: Show this is the restricted playbook
+      debug:
+        msg: "This is the RESTRICTED playbook. A least-privilege Cutover integration credential should not be able to launch this job template."
+
+    - name: Show all Cutover extra vars
+      debug:
+        msg: "{{ item.key }} = {{ item.value }}"
+      loop: "{{ cutover_vars | default({}) | dict2items }}"
+
+    - name: Show full Cutover vars object
+      debug:
+        var: cutover_vars
+      when: cutover_vars is defined
