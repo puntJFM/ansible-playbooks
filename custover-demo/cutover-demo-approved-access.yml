@@ -1,0 +1,15 @@
+---
+- name: Cutover task can launch this playbook
+  hosts: localhost
+  gather_facts: false
+
+  tasks:
+    - name: Show all Cutover extra vars
+      debug:
+        msg: "{{ item.key }} = {{ item.value }}"
+      loop: "{{ cutover_vars | default({}) | dict2items }}"
+
+    - name: Show full Cutover vars object
+      debug:
+        var: cutover_vars
+      when: cutover_vars is defined
